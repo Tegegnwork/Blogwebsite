@@ -1,48 +1,45 @@
 import React from "react";
-import { Router, Routes, Route, Link } from "react-router-dom";
-import "./App.css";
+import "./styles/style.css";
+import { Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Account from "./pages/Account";
+import CreatePost from "./pages/CreatePost";
 import Post from "./pages/Post";
-import Details from "./pages/Details";
-
+import EditPost from "./pages/EditPost";
+import Category from "./components/Category";
+import ProtectedRoute from "./utils/ProtectedRoute";
 function App() {
   return (
     <>
-      {/* Simple Navigation */}
-      <nav
-        style={{ textAlign: "center", padding: "35px", background: "#e1e6e2" }}
-      >
-        <Link to="/" style={{ margin: "40px" }}>
-          Home
-        </Link>
-        <Link to="/login" style={{ margin: "40px" }}>
-          Login
-        </Link>
-        <Link to="/register" style={{ margin: "40px" }}>
-          Register
-        </Link>
-        <Link to="/account" style={{ margin: "40px" }}>
-          Account
-        </Link>
-        <Link to="/post" style={{ margin: "40px" }}>
-          Post
-        </Link>
-        <Link to="/details" style={{ margin: "40px" }}>
-          Details
-        </Link>
-      </nav>
+      <Navbar />
 
-      {/* Page Routes */}
       <Routes>
         <Route path="/" element={<Home />} />
+
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/account" element={<Account />} />
-        <Route path="/post" element={<Post />} />
-        <Route path="/details" element={<Details />} />
+
+        <Route
+          path="/create"
+          element={
+            <ProtectedRoute>
+              <CreatePost />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/category/:name" element={<Category />} />
+        <Route path="/post/:id" element={<Post />} />
+
+        <Route
+          path="/edit/:id"
+          element={
+            <ProtectedRoute>
+              <EditPost />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </>
   );

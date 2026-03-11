@@ -1,75 +1,75 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Login.css";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-
+  const loginUser = async () => {
     try {
-      const response = await fetch("http://localhost:3000/auth/login", {
+      if (!email || !password) {
+        alert("Please fill in all fields");
+        return;
+      }
+      const res = await fetch("http://localhost:3000/auth/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.error || "Login failed");
+      if (!res.ok) {
+        const data = await res
+          .json()
+          .catch(() => ({ message: "Server error" }));
+        alert(data.message || "Login failed");
         return;
       }
 
-      // Store token and user info
+      const data = await res.json();
+
+      if (!data.token) {
+        alert("No token received");
+        return;
+      }
+
       localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-      // Redirect to home or posts
+      alert("Login successful!");
       navigate("/");
-    } catch (err) {
-      setError("Server error. Please try again.");
-      console.error(err);
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      console.error(error);
+      alert("Error: " + error.message);
     }
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <h1>Login</h1>
+    <div className="form-container">
+      <h2>Login</h2>
 
-        {error && <p style={{ color: "red" }}>{error}</p>}
-
-        <form onSubmit={handleLogin}>
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-
-          <button type="submit" disabled={loading}>
-            {loading ? "Logging in..." : "Login"}
-          </button>
-        </form>
+      <div className="form-group">
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
       </div>
+
+      <div className="form-group">
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+      </div>
+
+      <button className="btn" onClick={loginUser}>
+        Login
+      </button>
     </div>
   );
 }

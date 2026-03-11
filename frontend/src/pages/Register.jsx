@@ -1,85 +1,77 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Register.css";
 
 function Register() {
-  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-
+  const registerUser = async () => {
     try {
-      const response = await fetch("http://localhost:3000/auth/register", {
+      if (!username || !email || !password) {
+        alert("Please fill in all fields");
+        return;
+      }
+      const res = await fetch("http://localhost:3000/auth/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: name, email, password }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, email, password }),
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.error || "Registration failed");
+      if (!res.ok) {
+        const data = await res
+          .json()
+          .catch(() => ({ message: "Server error" }));
+        alert(data.message || "Registration failed");
         return;
       }
 
-      // Store token
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-      }
-      // Redirect to login or home page
+      alert("Registration successful! Please login.");
       navigate("/login");
-    } catch (err) {
-      setError("Server error. Please try again.");
-      console.error(err);
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      console.error(error);
+      alert("Error: " + error.message);
     }
   };
 
   return (
-    <div className="register-container">
-      <div className="register-card">
-        <h1>Register</h1>
+    <div className="form-container">
+      <h2>Register</h2>
 
-        {error && <p style={{ color: "red" }}>{error}</p>}
-
-        <form onSubmit={handleRegister}>
-          <input
-            type="text"
-            placeholder="Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-
-          <button type="submit" disabled={loading}>
-            {loading ? "Registering..." : "Register"}
-          </button>
-        </form>
+      <div className="form-group">
+        <input
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
       </div>
+
+      <div className="form-group">
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+      </div>
+
+      <div className="form-group">
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+      </div>
+
+      <button className="btn" onClick={registerUser}>
+        Register
+      </button>
     </div>
   );
 }

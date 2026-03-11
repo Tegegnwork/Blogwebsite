@@ -1,34 +1,44 @@
-import React, { useState } from 'react';
-import './Navbar.css';
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
 
-const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
+function Navbar() {
+  const navigate = useNavigate();
+  const isLoggedIn = !!localStorage.getItem("token");
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
 
   return (
     <nav className="navbar">
-      <div className="nav-container">
-        <div className="nav-brand">
-          <a href="/">21</a>
-        </div>
-        
-        <div className={`nav-menu ${isOpen ? 'active' : ''}`}>
-          <ul className="nav-list">
-            <li className="nav-item"><a href="/">Home</a></li>
-            <li className="nav-item"><a href="/about">About</a></li>
-            <li className="nav-item"><a href="/services">Services</a></li>
-            <li className="nav-item"><a href="/blog">Blog</a></li>
-            <li className="nav-item"><a href="/contact">Contact</a></li>
-          </ul>
-        </div>
-        
-        <div className="nav-toggle" onClick={() => setIsOpen(!isOpen)}>
-          <span className="bar"></span>
-          <span className="bar"></span>
-          <span className="bar"></span>
-        </div>
+      <Link to="/" className="navbar-brand">
+        📝 T-Blog
+      </Link>
+
+      <div className="navbar-menu">
+        {isLoggedIn ? (
+          <>
+            <Link to="/create" className="nav-link">
+              Create Post
+            </Link>
+            <button className="btn btn-logout" onClick={logout}>
+              Logout
+            </button>
+          </>
+        ) : (
+          <>
+            <Link to="/login" className="nav-link">
+              Login
+            </Link>
+            <Link to="/register" className="nav-link">
+              Register
+            </Link>
+          </>
+        )}
       </div>
     </nav>
   );
-};
+}
 
 export default Navbar;
