@@ -2,6 +2,56 @@ const express = require("express");
 const router = express.Router();
 const User = require("../model/user");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+
+// Login route
+router.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Validate required fields
+    if (!email || !password) {
+      return res.status(400).json({ error: "Email and password are required" });
+    }
+
+    // Find user by email
+    const foundUser = await User.findOne({ email });
+    if (!foundUser) {
+      return res.status(400).json({ error: "Invalid credentials" });
+    }
+
+    // Check password
+    const isMatch = await bcrypt.compare(password, foundUser.password);
+    if (!isMatch) {
+      return res.status(400).json({ error: "Invalid credentials" });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      {
+        id: foundUser._id,
+        username: foundUser.Username,
+        email: foundUser.email,
+      },
+      process.env.JWT_SECRET || "your-secret-key",
+      { expiresIn: "7d" },
+    );
+
+    // Return user info and token
+    res.json({
+      message: "Login successful",
+      token,
+      user: {
+        id: foundUser._id,
+        username: foundUser.Username,
+        email: foundUser.email,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Something went wrong!" });
+  }
+});
 
 // Register route
 router.post("/register", async (req, res) => {
@@ -64,43 +114,6 @@ router.post("/register", async (req, res) => {
       const field = Object.keys(error.keyPattern)[0];
       return res.status(400).json({ error: `${field} already exists` });
     }
-    console.error(error);
-    res.status(500).json({ error: "Something went wrong!" });
-  }
-});
-
-// Login route
-router.post("/login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    // Validate required fields
-    if (!email || !password) {
-      return res.status(400).json({ error: "Email and password are required" });
-    }
-
-    // Find user by email
-    const foundUser = await User.findOne({ email });
-    if (!foundUser) {
-      return res.status(400).json({ error: "Invalid credentials" });
-    }
-
-    // Check password
-    const isMatch = await bcrypt.compare(password, foundUser.password);
-    if (!isMatch) {
-      return res.status(400).json({ error: "Invalid credentials" });
-    }
-
-    // Return user info without password
-    res.json({
-      message: "Login successful",
-      user: {
-        id: foundUser._id,
-        username: foundUser.Username,
-        email: foundUser.email,
-      },
-    });
-  } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Something went wrong!" });
   }

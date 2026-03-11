@@ -1,14 +1,30 @@
 const router = require("express").Router();
 const Post = require("../model/post");
+const jwt = require("jsonwebtoken");
 
-router.post("/", async (req, res) => {
-  console.log("Request body:", req.body);
-  const newPost = new Post(req.body);
+// middleware to verify JWT and attach user info
+function verifyToken(req, res, next) {
+  const token = req.headers.token;
+  if (!token) return res.status(401).json({ error: "No token provided" });
+  jwt.verify(
+    token,
+    process.env.JWT_SECRET || "your-secret-key",
+    (err, user) => {
+      if (err) return res.status(403).json({ error: "Token is not valid" });
+      req.user = user; // { id, username, email }
+      next();
+    },
+  );
+}
+
+router.post("/", verifyToken, async (req, res) => {
+  // attach username from token instead of client
+  const postData = { ...req.body, username: req.user.username };
+  const newPost = new Post(postData);
   try {
     const savedPost = await newPost.save();
     res.status(200).json(savedPost);
   } catch (err) {
-    console.error("Error saving post:", err);
     res.status(500).json(err);
   }
 });
