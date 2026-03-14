@@ -4,6 +4,8 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const helmet = require("helmet");
+const xss = require("xss-clean");
+const rateLimit = require("express-rate-limit");
 const authRoute = require("./routes/auth");
 const authUser = require("./routes/user");
 const authPost = require("./routes/posts");
@@ -23,6 +25,14 @@ mongoose
 // Middleware
 app.use(helmet());
 app.use(cors());
+app.use(xss());
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    message: "Too many requests from this IP, please try again later.",
+  }),
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
