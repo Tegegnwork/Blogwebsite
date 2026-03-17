@@ -27,14 +27,18 @@ router.post("/login", async (req, res) => {
     }
 
     // Generate JWT token
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET is required");
+    }
+
     const token = jwt.sign(
       {
         id: foundUser._id,
         username: foundUser.Username,
         email: foundUser.email,
       },
-      process.env.JWT_SECRET || "your-secret-key",
-      { expiresIn: "7d" },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" },
     );
 
     // Return user info and token

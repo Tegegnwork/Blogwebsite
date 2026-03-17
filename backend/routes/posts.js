@@ -1,21 +1,7 @@
 const router = require("express").Router();
 const Post = require("../model/post");
 const jwt = require("jsonwebtoken");
-
-// middleware to verify JWT and attach user info
-function verifyToken(req, res, next) {
-  const token = req.headers.token;
-  if (!token) return res.status(401).json({ error: "No token provided" });
-  jwt.verify(
-    token,
-    process.env.JWT_SECRET || "your-secret-key",
-    (err, user) => {
-      if (err) return res.status(403).json({ error: "Token is not valid" });
-      req.user = user; // { id, username, email }
-      next();
-    },
-  );
-}
+const verifyToken = require("../middleware/verifyToken");
 
 router.post("/", verifyToken, async (req, res) => {
   // attach username from token instead of client
@@ -25,29 +11,36 @@ router.post("/", verifyToken, async (req, res) => {
     const savedPost = await newPost.save();
     res.status(200).json(savedPost);
   } catch (err) {
-    res.status(500).json(err);
+    res.status(500).json({ error: "Something went wrong!" });
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", verifyToken, async (req, res) => {
   try {
-    const updatedPost = await Post.findByIdAndUpdate(
-      req.params.id,
+    const updatedPost = await Post.findOneAndUpdate(
+      // updates only if the Post’s username field matches the currently logged-in user
+      { _id: req.params.id, username: req.user.username }, // ownership enforced here
       { $set: req.body },
       { new: true },
     );
+    if (!updatedPost) {
+      return res.status(403).json({ error: "Not authorized" }); // detects authorization failure explicitly
+    }
     res.status(200).json(updatedPost);
   } catch (err) {
-    res.status(500).json(err);
+    res.status(500).json({ error: "Something went wrong!" });
   }
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", verifyToken, async (req, res) => {
   try {
-    const deletedPost = await Post.findByIdAndDelete(req.params.id);
-    res.status(200).json(deletedPost);
+    const deletedPost = await Post.findOneAndDelete({
+      _id: req.params.id,
+      username: req.user.username,
+    });
+    if (!deletedPost) return res.status(403).json({ error: "Not authorized" });
   } catch (err) {
-    res.status(500).json(err);
+    res.status(500).json({ error: "Something went wrong!" });
   }
 });
 
@@ -56,7 +49,7 @@ router.get("/:id", async (req, res) => {
     const foundPost = await Post.findById(req.params.id);
     res.status(200).json(foundPost);
   } catch (err) {
-    res.status(500).json(err);
+    res.status(500).json({ error: "Something went wrong!" });
   }
 });
 
@@ -75,7 +68,7 @@ router.get("/", async (req, res) => {
     }
     res.status(200).json(posts);
   } catch (err) {
-    res.status(500).json(err);
+    res.status(500).json({ error: "Something went wrong!" });
   }
 });
 

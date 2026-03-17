@@ -14,7 +14,8 @@ function Register() {
         alert("Please fill in all fields");
         return;
       }
-      const res = await fetch("http://localhost:3000/auth/register", {
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+      const res = await fetch(`${API_URL}/api/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -26,7 +27,7 @@ function Register() {
         const data = await res
           .json()
           .catch(() => ({ message: "Server error" }));
-        alert(data.message || "Registration failed");
+        alert(data.error || data.message || "Registration failed");
         return;
       }
 

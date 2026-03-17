@@ -13,7 +13,8 @@ function CreatePost() {
         alert("Please fill in all fields");
         return;
       }
-      const res = await fetch("http://localhost:3000/posts", {
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+      const res = await fetch(`${API_URL}/api/posts`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -26,7 +27,7 @@ function CreatePost() {
         const data = await res
           .json()
           .catch(() => ({ message: "Failed to create post" }));
-        alert(data.message || "Failed to create post");
+        alert(data.error || data.message || "Failed to create post");
         return;
       }
 

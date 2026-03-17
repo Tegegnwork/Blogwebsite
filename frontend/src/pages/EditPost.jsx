@@ -6,17 +6,24 @@ function EditPost() {
 
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
-
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`http://localhost:3000/posts/${id}`)
-      .then((res) => res.json())
+    fetch(`${API_URL}/posts/${id}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Post not found");
+        return res.json();
+      })
       .then((data) => {
         setTitle(data.title);
         setDesc(data.desc);
+      })
+      .catch((err) => {
+        alert(err.message);
+        navigate("/");
       });
-  }, [id]);
+  }, [id, navigate]);
 
   const updatePost = async () => {
     try {
@@ -24,7 +31,7 @@ function EditPost() {
         alert("Please fill in all fields");
         return;
       }
-      const res = await fetch(`http://localhost:3000/posts/${id}`, {
+      const res = await fetch(`${API_URL}/posts/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -37,7 +44,7 @@ function EditPost() {
         const data = await res
           .json()
           .catch(() => ({ message: "Failed to update post" }));
-        alert(data.message || "Failed to update post");
+        alert(data.error || data.message || "Failed to update post");
         return;
       }
 

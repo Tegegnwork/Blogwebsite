@@ -5,8 +5,6 @@ const User = ({ user }) => {
     name: "",
     email: "",
     avatar: "https://via.placeholder.com/100",
-    role: "Admin",
-    joinDate: "January 2024",
   };
 
   const userData = user || defaultUser;
@@ -20,7 +18,6 @@ const User = ({ user }) => {
           className="user-avatar"
         />
         <h3 className="user-name">{userData.name}</h3>
-        <span className="user-role">{userData.role}</span>
       </div>
 
       <div className="user-info">
@@ -28,15 +25,21 @@ const User = ({ user }) => {
           <span className="info-label">Email:</span>
           <span className="info-value">{userData.email}</span>
         </div>
-        <div className="info-item">
-          <span className="info-label">Member since:</span>
-          <span className="info-value">{userData.joinDate}</span>
-        </div>
       </div>
 
       <div className="user-actions">
-        <button className="btn btn-primary">Edit Profile</button>
-        <button className="btn btn-secondary">Settings</button>
+        <button
+          className="btn btn-primary"
+          onClick={() => alert("Edit Profile feature coming soon!")}
+        >
+          Edit Profile
+        </button>
+        <button
+          className="btn btn-secondary"
+          onClick={() => alert("Settings feature coming soon!")}
+        >
+          Settings
+        </button>
       </div>
     </div>
   );

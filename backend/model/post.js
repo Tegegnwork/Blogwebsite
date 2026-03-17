@@ -29,6 +29,20 @@ const PostSchema = new mongoose.Schema(
         required: false,
       },
     ],
+    views: {
+      type: Number,
+      default: 0,
+    },
+
+    likes: {
+      type: Number,
+      default: 0,
+    },
+
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true },
 );

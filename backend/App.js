@@ -13,26 +13,33 @@ const authCategory = require("./routes/categories");
 dotenv.config();
 
 const app = express();
+const PORT = process.env.PORT || 3001;
 
 mongoose
-  .connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+  .connect(process.env.MONGODB_URI) //try to connect to MongoDB
+  .then(() => {
+    console.log("Connected to MongoDB");
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`)); //if connection succeeds, then start the server
   })
-  .then(() => console.log("Connected to MongoDB"))
-  .catch((err) => console.log(err));
+  .catch((err) => {
+    //if connection fails, log the error and terminate the process
+    console.error("Database connection failed:", err);
+    process.exit(1); //tells the operating system the process ended with an error
+  });
 
 // Middleware
 app.use(helmet());
 app.use(cors());
 app.use(xss());
-app.use(
-  rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100,
-    message: "Too many requests from this IP, please try again later.",
-  }),
-);
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: "Too many requests from this IP, please try again later.",
+});
+app.use(limiter);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
@@ -47,16 +54,13 @@ app.use("/posts", authPost);
 app.use("/categories", authCategory);
 
 // Error handling middleware
+app.use((req, res) => {
+  res.status(404).json({ error: "Route not found" });
+});
 app.use((err, _req, res, _next) => {
   if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
     return res.status(400).json({ error: "Invalid JSON" });
   }
   console.error(err.stack);
   res.status(500).json({ error: "Something went wrong!" });
-});
-
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
 });
