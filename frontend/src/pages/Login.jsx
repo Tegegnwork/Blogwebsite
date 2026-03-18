@@ -13,7 +13,8 @@ function Login() {
         alert("Please fill in all fields");
         return;
       }
-      const res = await fetch("http://localhost:3000/auth/login", {
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"; // app is built with VITE_API_URL, browser calls the correct public backend URL
+      const res = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -25,7 +26,7 @@ function Login() {
         const data = await res
           .json()
           .catch(() => ({ message: "Server error" }));
-        alert(data.message || "Login failed");
+        alert(data.error || data.message || "Login failed");
         return;
       }
 

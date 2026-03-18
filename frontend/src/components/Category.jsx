@@ -8,9 +8,17 @@ function Category() {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    fetch(`http://localhost:3000/posts?category=${name}`)
-      .then((res) => res.json())
-      .then((data) => setPosts(data));
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+    fetch(`${API_URL}/posts?category=${name}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to load posts");
+        return res.json();
+      })
+      .then((data) => setPosts(Array.isArray(data) ? data : []))
+      .catch((err) => {
+        console.error(err);
+        setPosts([]);
+      });
   }, [name]);
 
   return (

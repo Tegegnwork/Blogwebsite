@@ -6,7 +6,8 @@ function PostCard({ post }) {
     try {
       if (!window.confirm("Are you sure you want to delete this post?")) return;
 
-      const res = await fetch(`http://localhost:3000/posts/${post._id}`, {
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+      const res = await fetch(`${API_URL}/posts/${post._id}`, {
         method: "DELETE",
       });
 
@@ -24,7 +25,8 @@ function PostCard({ post }) {
 
   const likePost = async () => {
     try {
-      const res = await fetch(`http://localhost:3000/posts/${post._id}/like`, {
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+      const res = await fetch(`${API_URL}/posts/${post._id}/like`, {
         method: "PUT",
       });
 
