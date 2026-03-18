@@ -6,7 +6,6 @@ const User = ({ user }) => {
     email: "",
     avatar: "https://via.placeholder.com/100",
     role: "Admin",
-    joinDate: "January 2024",
   };
 
   const userData = user || defaultUser;
@@ -22,7 +21,6 @@ const User = ({ user }) => {
         <h3 className="user-name">{userData.name}</h3>
         <span className="user-role">{userData.role}</span>
       </div>
-
       <div className="user-info">
         <div className="info-item">
           <span className="info-label">Email:</span>
@@ -33,11 +31,12 @@ const User = ({ user }) => {
           <span className="info-value">{userData.joinDate}</span>
         </div>
       </div>
-
+      return (
       <div className="user-actions">
         <button className="btn btn-primary">Edit Profile</button>
         <button className="btn btn-secondary">Settings</button>
       </div>
+      );
     </div>
   );
 };
