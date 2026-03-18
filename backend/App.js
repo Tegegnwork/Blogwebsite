@@ -13,10 +13,10 @@ const authCategory = require("./routes/categories");
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 
 mongoose
-  .connect(process.env.MONGODB_URI) //try to connect to MongoDB
+  .connect(process.env.MONGO_URI) //try to connect to MongoDB
   .then(() => {
     console.log("Connected to MongoDB");
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`)); //if connection succeeds, then start the server
