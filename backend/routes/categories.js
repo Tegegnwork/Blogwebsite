@@ -1,9 +1,10 @@
 const router = require("express").Router();
 const Category = require("../model/category");
 const mongoose = require("mongoose");
+const verifyToken = require("../middleware/verifyToken");
 
 // Create category
-router.post("/", async (req, res) => {
+router.post("/", verifyToken, async (req, res) => {
   try {
     if (!req.body.name) {
       return res.status(400).json({ error: "Category name is required" });
@@ -51,7 +52,7 @@ router.get("/:id", async (req, res) => {
 });
 
 // Update category
-router.put("/:id", async (req, res) => {
+router.put("/:id", verifyToken, async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ error: "Invalid category ID" });
@@ -79,7 +80,7 @@ router.put("/:id", async (req, res) => {
 });
 
 // Delete category
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", verifyToken, async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ error: "Invalid category ID" });
