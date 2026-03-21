@@ -9,6 +9,14 @@ import PostPage from "./pages/Post";
 import Category from "./components/Category";
 
 function App() {
+  const isLoggedIn = Boolean(localStorage.getItem("token"));
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    alert("Logged out successfully");
+    window.location.href = "/login";
+  };
+
   return (
     <>
       <nav
@@ -20,12 +28,20 @@ function App() {
         <Link to="/create" style={{ margin: "0 12px" }}>
           Create
         </Link>
-        <Link to="/login" style={{ margin: "0 12px" }}>
-          Login
-        </Link>
-        <Link to="/register" style={{ margin: "0 12px" }}>
-          Register
-        </Link>
+        {!isLoggedIn ? (
+          <>
+            <Link to="/login" style={{ margin: "0 12px" }}>
+              Login
+            </Link>
+            <Link to="/register" style={{ margin: "0 12px" }}>
+              Register
+            </Link>
+          </>
+        ) : (
+          <button className="btn" onClick={handleLogout}>
+            Logout
+          </button>
+        )}
       </nav>
 
       <Routes>

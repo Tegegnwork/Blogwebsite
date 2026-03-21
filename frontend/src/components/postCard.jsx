@@ -5,14 +5,26 @@ function PostCard({ post }) {
   const deletePost = async () => {
     try {
       if (!window.confirm("Are you sure you want to delete this post?")) return;
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Please login first");
+        return;
+      }
 
       const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
       const res = await fetch(`${API_URL}/posts/${post._id}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          token,
+        },
       });
 
       if (!res.ok) {
-        alert("Failed to delete post");
+        const data = await res
+          .json()
+          .catch(() => ({ message: "Failed to delete post" }));
+        alert(data.error || data.message || "Failed to delete post");
         return;
       }
 
