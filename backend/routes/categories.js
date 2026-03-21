@@ -25,7 +25,7 @@ router.post("/", verifyToken, async (req, res) => {
 });
 
 // Get all categories
-router.get("/", verifyToken, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const categories = await Category.find().sort({ name: 1 }); // Sort by name
     res.status(200).json(categories);
@@ -35,7 +35,7 @@ router.get("/", verifyToken, async (req, res) => {
 });
 
 // Get category by ID
-router.get("/:id", verifyToken, async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ error: "Invalid category ID" });

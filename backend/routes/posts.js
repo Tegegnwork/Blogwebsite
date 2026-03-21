@@ -1,6 +1,5 @@
 const router = require("express").Router();
 const Post = require("../model/post");
-const jwt = require("jsonwebtoken");
 const verifyToken = require("../middleware/verifyToken");
 
 router.post("/", verifyToken, async (req, res) => {
@@ -39,6 +38,7 @@ router.delete("/:id", verifyToken, async (req, res) => {
       username: req.user.username,
     });
     if (!deletedPost) return res.status(403).json({ error: "Not authorized" });
+    res.status(200).json({ message: "Post deleted successfully" });
   } catch (err) {
     res.status(500).json({ error: "Something went wrong!" });
   }
