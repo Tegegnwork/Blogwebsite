@@ -28,7 +28,9 @@ router.post("/login", async (req, res) => {
 
     // Generate JWT token
     if (!process.env.JWT_SECRET) {
-      throw new Error("JWT_SECRET is required");
+      return res
+        .status(500)
+        .json({ error: "Server config error: JWT_SECRET is missing" });
     }
 
     const token = jwt.sign(
